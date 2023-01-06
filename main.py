@@ -1,68 +1,48 @@
 import requests
 
-url_others = 'https://www.n-tv.de/suche/?q=fleischersatz&at=all&page='
+# süddeutscheZeitung ist ein Fuchs mit dem Link zu den Seiten != 1
+urls = ['https://sz-magazin.sueddeutsche.de/essen-und-trinken/schmorgerichte-vegan-vegetarisch-fleischlos-umami-92193']
+# 'https://www.sueddeutsche.de/news?search=Fleischersatz&sort=date&all%5B%5D=dep&all%5B%5D=typ&all%5B%5D=sys&all%5B%5D=time',
+# 'https://www.sueddeutsche.de/news?search=Fleischersatz&sort=date&all%5B%5D=dep&all%5B%5D=typ&all%5B%5D=sys&time=2000-01-05T00%3A00%2F2020-08-15T23%3A59&startDate=05.01.2000&endDate=15.08.2020',
+# 'https://www.sueddeutsche.de/news?search=Fleischersatz&sort=date&all%5B%5D=dep&all%5B%5D=typ&all%5B%5D=sys&time=2000-01-05T00%3A00%2F2020-08-15T23%3A59&startDate=05.01.2000&endDate=14.05.2019']
 
 import pandas as pd
+
+import requests
+
+url = 'https://id.sueddeutsche.de/login'
+
+# Set the credentials you want to send
+payload = {
+    'username': 'philipnartschik96@gmail.com',
+    'password': '@S%&Jpbe7LiwzL_'
+}
+
+# Send the request with the POST method
+login_response = requests.post(url, data=payload)
+
+# Set the URL of the protected page
+
+# Send the request with the GET method
+page = ""
+
+for url in urls:
+    response = requests.get(url, cookies=login_response.cookies)
+    # Check the response status code
+    if response.status_code == 200:
+        # If the status code is 200, the request was successful
+        # You can now use the response.text to access the HTML of the page
+        page = page + response.content.decode('utf-8')
+    else:
+        # If the status code is not 200, there was an error
+        print('An error occurred:', response.status_code)
 
 # Google Chrome - Menu - Weitere Tools - Entwicklertools
 # Ctrl+Shift+C - Select section of interest
 # Right click html code and copy XPath:
-page = requests.get(url_others + '1').content
-page = page + requests.get(url_others + '2').content
-page = page + requests.get(url_others + '3').content
-page = page + requests.get(url_others + '4').content
-page = page + requests.get(url_others + '5').content
-page = page + requests.get(url_others + '6').content
 
 from bs4 import BeautifulSoup
 
 soup = BeautifulSoup(page, 'html.parser')
 
-teasers = soup.find_all(class_='teaser teaser--inline')
-
-# Print the number of elements found
-print(f"Number of elements found: {len(teasers)}")
-data = []
-# You can access the content of each element using a loop:
-ntv_urls = []
-for teaser in teasers:
-    # Find all 'a' tags within the teaser
-    links = teaser.find_all('a')
-
-    # Print the 'href' attribute of each 'a' tag
-    for link in links:
-        ntv_urls.append(link['href'])
-        article_url = link['href']
-
-        # Make a request to the article's URL
-        article_page = requests.get(article_url)
-
-        # Parse the HTML of the article page
-        article_soup = BeautifulSoup(article_page.content, 'html.parser')
-
-        # Find the title of the article
-        title = article_soup.find(class_='article__headline').text
-
-        # Find the publishing date of the article
-
-        date = article_soup.find(class_='article__date')
-        # Find the text of the article
-        article_text = article_soup.find_all('p')
-
-        # Print the title, date, and text of the article
-        article_data = {
-            'title': title,
-            'date': date,
-            'text': article_text
-        }
-
-        data.append(article_data)
-
-# Create a DataFrame from the list of dictionaries
-df = pd.DataFrame(data)
-df = df.drop_duplicates('title')
-df = df.reset_index(drop=True)
-print(df)
-# Print the DataFrame
-# Save the DataFrame as a CSV file
-df.to_csv('articles.csv', index=False)
+print(soup.find_all('p'))
