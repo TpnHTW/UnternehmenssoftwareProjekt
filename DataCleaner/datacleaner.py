@@ -12,7 +12,6 @@ df['title'] = df['title'].replace(r'<[^>]*>', '', regex=True).replace(r'\n', '',
 df['text'] = df['text'].replace(r'[^\w\s]', '', regex=True)
 df['title'] = df['title'].replace(r'[^\w\s]', '', regex=True)
 
-
 df = df.dropna().reset_index(drop=True)
 df = df.drop_duplicates()
 
